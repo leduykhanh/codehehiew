@@ -68,12 +68,12 @@ Please put your comments on the code and design here:
 3      private List<Order> orders;
 4  
 5      public LargeOrderFilter(OrderWriter orderWriter, List<Order> orders) {
-6          filterSize = "100";
+6          filterSize = "100";		// We shouldn't hardcode the size in class level like this, it should be in some settings class or constants file		// So any changes in the future you just need to change at fewer places
 7          this.orderWriter = orderWriter;
 8          this.orders = orders;
 9      }
 10 
-11     protected String filterSize;		// filterSize declaration should be put at line 5 (attributes list)
+11     protected String filterSize;		// filterSize declaration should be put at line 5 (attributes list)		// It should be just int type since later we also do Integer.parseInt from a string, just redundancy 
 12 
 13     public void writeOutFiltrdAndPriceSortedOrders(OrderWriter writer) {
 14         List<Order> filteredOrders = this.filterOrdersSmallerThan(orders, filterSize);
@@ -104,7 +104,7 @@ Please put your comments on the code and design here:
 39     }
 40 }
 
-1  public class SmallOrderFilter extends LargeOrderFilter
+1  public class SmallOrderFilter extends LargeOrderFilter	// This class extends LargeOrderFilter with just a different value of filterSize	// We should have just one class and pass in filterSize as function params	// The small and large definition can be put in OrderManager, writeOutSmallOrders func passes in 10...
 2  {
 3      public SmallOrderFilter(OrderWriter orderWriter, List<Order> orders) {
 4          super(orderWriter, orders);
@@ -159,7 +159,7 @@ Please put your comments on the code and design here:
 44             return n;
 45         } else {
 46             return 0;
-47        }	// Can be done by following way, don't need 2 variables		 try 			{				return (Integer.parseInt(Input));			 }			catch (Exception ex)			{				return 0;			}
+47        }	// Can be done by following way, don't need those two variables		 try 			{				return (Integer.parseInt(Input));			 }			catch (Exception ex)			{				return 0;			}
 48     }
 49 }
 

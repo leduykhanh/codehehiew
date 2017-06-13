@@ -1,0 +1,75 @@
+Copyright ©Flextrade UK Limited 2014 All Rights Reserved.
+The contents of this file are confidential and are intended solely for the use of the individual or entity to whom they were sent.
+No permission is granted to reproduce this file, or share it in any form, in part or whole, modified or otherwise.
+
+Unit Test
+
+The aim of this task is to write unit tests for the SimpleOrderManager class defined below.
+The tests you produce should be ones we can run and should all pass.
+
+You can: 
+* Assume access to any publicly available libraries you think you might need. You must specify which you are using.
+
+You cannot:
+* Change the class in any way.
+* Change the dependencies in any way.
+
+Example
+
+mytestone() {
+    // I do some testing in here
+}
+
+mytesttwo() {
+    // I do some more testing in here
+}
+
+There is no time or word limit but try to not spend too long completing the task. Write the tests 
+as if this were a real piece of work you had been given in your day as a developer.
+
+---
+
+public class SimpleOrderManager {
+    private final OrderStore orderStore;
+    private final OrderWriter orderWriter;
+
+    public SimpleOrderManager(OrderStore orderStore, OrderWriter orderWriter) {
+        this.orderStore = orderStore;
+        this.orderWriter = orderWriter;
+    }
+
+    public void writeAllOrders() {
+        List<Order> allOrders = orderStore.getOrders();
+        if (allOrders.size() == 0) {
+            throw new InvalidOperationException("No orders in store");
+        }
+
+        this.orderWriter.writeOrders(allOrders);
+    }
+}
+
+
+// These interfaces and classes already exist in the system.
+
+public interface OrderWriter {
+    void writeOrders(Collection<Order> orders);
+}
+
+public interface OrderStore {
+    List<Order> getOrders();
+}
+
+public class Order {
+    
+}
+
+public class InvalidOperationException extends RuntimeException {
+    public InvalidOperationException(String reason) {
+        super(reason);
+    }
+}
+
+---
+Please write your tests here:
+
+---
