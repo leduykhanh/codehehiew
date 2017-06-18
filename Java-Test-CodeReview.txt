@@ -43,7 +43,7 @@ Please put your comments on the code and design here:
 ---
 
 1  public class OrderManager {
-2      private final OrderStore orderStore;
+2      private final OrderStore orderStore;	// OrderStore is an interface, we should define an implementation class that implements OrderStore to use here	// However this still works
 3  
 4      public OrderManager(OrderStore orderStore) {
 5          this.orderStore = orderStore;
@@ -52,7 +52,7 @@ Please put your comments on the code and design here:
 8      public void writeOutSmallOrders() {
 9          List<Order> orders = orderStore.getOrders();
 10         SmallOrderFilter filter = new SmallOrderFilter(new DefaultOrderWriter(), orders);
-11         filter.writeOutFiltrdAndPriceSortedOrders(new DefaultOrderWriter());
+11         filter.writeOutFiltrdAndPriceSortedOrders(new DefaultOrderWriter());		// We should create a new DefaultOrderWriter object and pass in to SmallOrderFilter contstructor
 12     }
 13 
 14     public void writeOutLargeOrders() {
@@ -69,13 +69,13 @@ Please put your comments on the code and design here:
 4  
 5      public LargeOrderFilter(OrderWriter orderWriter, List<Order> orders) {
 6          filterSize = "100";		// We shouldn't hardcode the size in class level like this, it should be in some settings class or constants file		// So any changes in the future you just need to change at fewer places
-7          this.orderWriter = orderWriter;
+7          this.orderWriter = orderWriter;		// this.orderWriter is not being used 
 8          this.orders = orders;
 9      }
 10 
 11     protected String filterSize;		// filterSize declaration should be put at line 5 (attributes list)		// It should be just int type since later we also do Integer.parseInt from a string, just redundancy 
 12 
-13     public void writeOutFiltrdAndPriceSortedOrders(OrderWriter writer) {
+13     public void writeOutFiltrdAndPriceSortedOrders(OrderWriter writer) {		// We should use this.orderWriter instead of passing new writer object
 14         List<Order> filteredOrders = this.filterOrdersSmallerThan(orders, filterSize);
 15         Collections.sort(filteredOrders, new Comparator() {
 16                 @Override
@@ -85,13 +85,13 @@ Please put your comments on the code and design here:
 20                     return (int)(order1.getPrice() - order2.getPrice());
 21                 }
 22             });
-23         writer.writeOrders(filteredOrders);
+23         writer.writeOrders(filteredOrders);		// So this could be this.orderWriter.writeOrders(filteredOrders);
 24     }
 25 
 26    protected List<Order> filterOrdersSmallerThan(List<Order> allOrders, String size) {
 27         List<Order> filtered = new ArrayList<Order>();
 28         for (int i = 0; i <= allOrders.size(); i++) {
-29             int number = orders.get(i).toNumber(size);
+29             int number = orders.get(i).toNumber(size);				// this has nothing to do with ith order, should be called with toNumber function only, if it's implemented
 30 
 31             if (allOrders.get(i).getSize() <= number) {
 32                 continue;
@@ -152,7 +152,7 @@ Please put your comments on the code and design here:
 37             canBeConverted = true;
 38         }
 39         catch (Exception ex)
-40         {
+40         {			// We shouldn't catch exception without doing anything, at least log something or return some errors
 41         }
 42 
 43         if (canBeConverted == true) { //can be shortened by if (canBeConverted)

@@ -71,5 +71,5 @@ public class InvalidOperationException extends RuntimeException {
 
 ---
 Please write your tests here:
-
+	@Test	public void testEmptyOrders() {		OrderWriter oW = new OrderWriter() {						@Override			public void writeOrders(Collection<Order> orders) {							}		};		OrderStore oS = new OrderStore(){			@Override			public List<Order> getOrders() {				return new ArrayList<Order>();			}					};		SimpleOrderManager sOM = new SimpleOrderManager(oS ,oW );		try{			sOM.writeAllOrders();			fail("No Exception thrown");		}		catch(InvalidOperationException ex){			 assertEquals("No orders in store", ex.getMessage());		}	}	@Test	public void testWithOneOrder() {		OrderWriter oW = new OrderWriter() {						@Override			public void writeOrders(Collection<Order> orders) {							}		};		OrderStore oS = new OrderStore(){			@Override			public List<Order> getOrders() {				List<Order> orders = new ArrayList<Order>();				orders.add(new Order());				return orders;			}					};		SimpleOrderManager sOM = new SimpleOrderManager(oS ,oW );		try{			sOM.writeAllOrders();			assert(true);		}		catch(InvalidOperationException ex){			fail("Exception thrown");		}	}
 ---
