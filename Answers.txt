@@ -1,0 +1,186 @@
+Question 1 :
+
+Hi Donald,
+Thanks for contacting Stripe. Upon your question about listing all charges, i am here willing to help you.
+
+
+First of all, have you heard about the term "pagination"? It is a user interface pattern that divides content into separate pages.
+So we can avoid too long data being returned to user. Our charges list method also returns a paginated result. That means you can define 
+how many records in limit you want to retrieve.
+Read more about it at https://stripe.com/docs/api/ruby#pagination.
+
+As our list method has several arguments, you can check them out at https://stripe.com/docs/api/ruby#list_charges.
+According to the documentation, 'limit' is the argument to decide the number of records returned. 
+
+Stripe::Charge.list(limit: 20) will give you the latest 20 charges.
+
+
+"Limit can range between 1 and 100 items, and the default is 10 items.", which means you can't get 1000 charges in one call.
+However, you can retrieve 1000 or all charges by calling list method multiple times.
+Take note that the returned data has "has_more" indicator to tell you whether it has more results after the last record id.
+For example, to list all charges, you can try this NodeJS code out:
+
+	function paginateCharges(last_id) {
+	  // Define request parameters
+	  var req_params = { limit: 100 };//100 is maximum
+	  if (last_id !== null) { 
+		req_params['starting_after'] = last_id;  // starting_after is parameter to tell API to get items after this id
+		
+		} 
+
+	  // Call API
+	  stripe.charges.list(
+		req_params,
+		function(err, charges) {
+
+		  // Do something with the returned values
+		  for (i = 0; i < charges.data.length; i++){
+			console.log(charges.data[i]);
+		  }
+
+		  // Check for more
+		  if (charges.has_more) {
+			paginateCharges(charges["data"][charges["data"].length - 1].id);
+		  }
+		}
+	  )
+	}
+
+	paginateCharges(null); // start with the latest
+	
+For 1000 charges, you call follow the similar way (provided you must have at least 1000 records), with a parameter times:
+	function paginateCharges(last_id, times)
+which start from 1 and end if it reaches 10.
+
+Any further enquiries about the implementation, feel free to contact me at leejangkoo@gmail.com.
+You could explore more at https://stripe.com/docs/api/ruby#list_charges.
+
+Regards, 
+
+Le Duy Khanh
+Stripe support.
+
+
+
+Question 2:
+
+Hi James,
+My name is Le, I would like to help with your issue.
+
+From my observation, you are getting "invalid_request_error", that means your request has invalid parameters.
+You can take a look at the types of errors described here https://stripe.com/docs/api/curl#errors
+
+In your case, it says you didn't provide API key, even you have this line of code:
+
+	request.Headers.Add("Authorization", "sk_test_W8xJYzw56NCHun0FT9iGIJeI");
+
+The problem is that you are passing the API key in the incorrect way. You can refer to this link to understand https://stripe.com/docs/api/curl#authentication.
+From that documentation, when you want to pass Authorization header to the request, you need to follow the format : authorization_type api_key.
+whereby the authorization_type in this case is Bearer. So the correct Authorization header should be "Bearer sk_test_W8xJYzw56NCHun0FT9iGIJeI".
+To fix your issue, you need to amend above code to :
+	request.Headers.Add("Authorization", "Bearer sk_test_W8xJYzw56NCHun0FT9iGIJeI");
+
+Hope you get it right and feel free to contact me if it still doesn't work.
+
+For more details about authentication, you can check on this link https://stripe.com/docs/api/curl#authentication.
+
+Thanks,
+Le Duy Khanh
+Stripe support.
+
+Question 3:
+
+Hi Jessica,
+Thanks for bringing this to Stripe.
+My name is Le, I would be happy to help with your question.
+
+First of all, for clear understanding about webhooks, you can refer to this https://stripe.com/docs/webhooks.
+Basically, by using webhooks, you are able to be notified about events that happen in a Stripe account. 
+For example, a payment failed, send email to customer. So the sending email to customer is at your server side, you need to implement it.
+
+Let's go to more details by your examples:
+
+"1) I think webhooks can tell my computer that something happened, like getting paid for a subscription. But how does that
+really work?"
+Webhooks are not connecting to your computer, they just call a url with POST method.
+You can try to create webhooks under https://dashboard.stripe.com/account/webhooks
+As you can see from the section, you need to pass in a "URL to be called", that is the url which Stripe webhook will send a POST request to when
+any events happen. So the url should be available for POST call, on your server (website backend). For example, if i put "http://jangkoo.com/api/callback",
+this route should accept the POST call and respond with something. The simplest sample code for NodeJS is as:
+
+app.post("/api/callback", function(req, res){
+	console.log(req);
+  	res.send("ok");
+});
+
+To check if you get paid for a subscription, you can do something with the data sent from Stripe:
+
+	var event_json = JSON.parse(req.body);
+	if (event_json.type == "invoice.payment_succeeded"){
+		//do send email here 
+		console.log(event_json.data.object);
+	}
+
+You can see more implementations on different languages here https://stripe.com/docs/webhooks
+
+"2) Webhooks, can't do this, I don't think, but I'd love to see when a charge doesn't go through too!"
+
+Yes webhooks can do this. You can use similar code as above, just need to check if the type if it is "charge.failed".
+
+For more webhooks event types, you can try to send test webhook and see a list of event types under the dropdown list or even clearer details 
+here https://stripe.com/docs/api#event_types.
+
+Any other questions about this are welcome. 
+
+Best regards,
+Le Duy Khanh
+Stripe support.
+
+Question 4:
+
+Hi Francesca,
+I am Le, Stripe support. I am glad to help with your question.
+
+Before going to figure out the issues with your codes, you can visit https://stripe.com/docs/api/curl#charges for more information about creating a charge.
+It's very important to know all the attributes that the charge has before creating it. One of them is "amount", which is an integer. By that it means the amount
+is in the smallest currency unit, e.g., 100 cents to charge $1.00. 
+
+Back to your codes, line 14 and 15 in backend.py:
+	amount_in_dollars = float(request.form['amount'])
+    amount_in_cents = int(amount_in_dollars)
+You are rounding amount in dollars to get amount in cents, which should be 100 times multiplied.
+For example, the amount passed in is 1.23 in dollars, the amount you should pass to create a charge is 123. But your codes are getting int(1.23) which is 1. It should 
+be int(1.23 * 100) which is 123. So your codes should change to this :
+	amount_in_cents = int(amount_in_dollars * 100)
+
+For debugging purpose, you can see the error returned from https://api.stripe.com/v1/tokens is an object, which has the format as follow:
+
+	{
+	  "error": {
+		"message": "Your card number is incorrect.",
+		"type": "card_error",
+		"param": "number",
+		"code": "incorrect_number"
+	  }
+	}
+
+so response.error is an object too:
+	{
+		"message": "Your card number is incorrect.",
+		"type": "card_error",
+		"param": "number",
+		"code": "incorrect_number"
+	  }
+To be able to display the message, you should get response.error.message, which is "Your card number is incorrect."
+Therefore your frontend.js line 17 can be written as :
+	 $form.find('.payment-errors').text(response.error.message);
+
+But since the error has different types and codes, I would recommend you to catch those attributes too, to display more proper messages.
+For more information about Stripe errors, you can refer to https://stripe.com/docs/api#errors.
+
+Thanks for using Stripe, should you need any further information, please do not hesitate to contact me.
+
+Best regards,
+Le Duy Khanh
+Stripe support
+
