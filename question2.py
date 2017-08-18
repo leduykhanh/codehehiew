@@ -18,7 +18,7 @@ def load_array(string):
     for string_item in string.split('\n'):
         dict_item = {}
         for dict_string in string_item.split(';'):
-            k_v_pair =  dict_string.split('=')
+            k_v_pair = dict_string.split('=')
             try:
                 dict_item[k_v_pair[0]] = k_v_pair[1]
             except:
